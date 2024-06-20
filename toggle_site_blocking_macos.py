@@ -1,9 +1,10 @@
 import sys
 import subprocess
 import time
+import os
 
 # Set the time delay to 5 minutes (300 seconds)
-TIME_DELAY = 300
+TIME_DELAY = 5
 HOSTS_FILE = "/private/etc/hosts"
 BLOCKED_IP = "127.0.0.1"
 
@@ -51,7 +52,16 @@ def toggle_block_site(site):
     with open(HOSTS_FILE, 'w') as f:
         f.writelines(new_lines)
     
-    flush_dns_cache()
+    flush_dns_cache()  
+    if is_site_blocked(sites_to_toggle[0]):  
+        
+        subprocess.run(['sudo', 'networksetup', '-setdnsservers', 'Wi-Fi', 'Empty'])
+        subprocess.run(['sudo', 'networksetup', '-setdnsservers', 'Wi-Fi', '8.8.8.8', '8.8.4.4'])
+
+        
+        os.system("sudo killall -HUP mDNSResponder")
+        os.system("sudo dscacheutil -flushcache")
+        
 
 def list_blocked_sites():
     with open(HOSTS_FILE, 'r') as f:
@@ -62,8 +72,19 @@ def list_blocked_sites():
 def flush_dns_cache():
     try:
         subprocess.run(['sudo', 'killall', '-HUP', 'mDNSResponder'], check=True)
+        subprocess.run(['dscacheutil', '-flushcache'], check=True)
     except subprocess.CalledProcessError:
-        print("Failed to flush DNS cache. You may need to run this script with sudo.")
+        print("Failed to flush DNS cache. You may need to run this script with sudo or check your network settings.")
+
+def disconnect_reconnect_wifi():
+    wifi_interface = "en0"  
+    try:
+        
+        subprocess.run(['sudo', 'networksetup', '-setairportpower', wifi_interface, 'off'], check=True)
+        time.sleep(2)  
+        subprocess.run(['sudo', 'networksetup', '-setairportpower', wifi_interface, 'on'], check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to toggle Wi-Fi: {e}")
 
 def main():
     if len(sys.argv) != 2:
@@ -89,6 +110,7 @@ def main():
             print(f"Blocking {command} now.")
         
         toggle_block_site(command)
+        disconnect_reconnect_wifi()  
 
 if __name__ == "__main__":
     main()

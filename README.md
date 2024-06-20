@@ -8,9 +8,8 @@ python script for macos to block bad websites for productivity (modified version
 sudo python3 toggle_site_blocking_macos.py <site name|list>
 ```
 
-## little bug for x.com on Safari
-
-you need to full restart safari otherwise you can still access x.com
+## safari bug for x.com
+to fix this bug i decided to disconnect and reconnect the wifi (i have a laptop), otherwise you would need to manually restart safari
 
 ## credits
 

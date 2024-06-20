@@ -1,10 +1,10 @@
 import sys
 import subprocess
 import time
-import os
 
+# Set the time delay to 5 minutes (300 seconds)
 TIME_DELAY = 300
-HOSTS_FILE = "/etc/hosts"
+HOSTS_FILE = "/private/etc/hosts"
 BLOCKED_IP = "127.0.0.1"
 
 # Multiline string containing site aliases
@@ -48,11 +48,8 @@ def toggle_block_site(site):
         for site in sites_to_toggle:
             new_lines.append(f"{BLOCKED_IP} {site}\n")
     
-    # Use sudo to write to the hosts file
-    with open('temp_hosts', 'w') as f:
+    with open(HOSTS_FILE, 'w') as f:
         f.writelines(new_lines)
-    
-    os.system(f"sudo mv temp_hosts {HOSTS_FILE}")
     
     flush_dns_cache()
 
@@ -64,22 +61,15 @@ def list_blocked_sites():
 
 def flush_dns_cache():
     try:
-        subprocess.run(['sudo', 'dscacheutil', '-flushcache'], check=True)
         subprocess.run(['sudo', 'killall', '-HUP', 'mDNSResponder'], check=True)
-        print("DNS cache flushed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred while flushing DNS cache: {e}")
-        print("You may need to flush the DNS cache manually.")
+    except subprocess.CalledProcessError:
+        print("Failed to flush DNS cache. You may need to run this script with sudo.")
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: sudo python toggle_site_blocking.py <site|list>")
+        print("Usage: python toggle_site_blocking.py <site|list>")
         sys.exit(1)
-
-    if os.geteuid() != 0:
-        print("This script must be run with sudo privileges.")
-        sys.exit(1)
-
+    
     command = sys.argv[1]
     
     if command == "list":
@@ -89,7 +79,7 @@ def main():
         sites_to_toggle = aliases.get(command, [command, f"www.{command}"])
         
         if is_site_blocked(sites_to_toggle[0]):
-            print(f"Unblocking {command} in {TIME_DELAY} seconds...")
+            print(f"Unblocking {command} in {TIME_DELAY // 60} minutes...")
             for remaining in range(TIME_DELAY, 0, -1):
                 sys.stdout.write(f"\rTime remaining: {remaining} seconds")
                 sys.stdout.flush()

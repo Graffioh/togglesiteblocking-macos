@@ -3,7 +3,7 @@ import subprocess
 import time
 import os
 
-TIME_DELAY = 5
+TIME_DELAY = 300
 HOSTS_FILE = "/etc/hosts"
 BLOCKED_IP = "127.0.0.1"
 

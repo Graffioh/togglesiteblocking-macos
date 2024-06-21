@@ -4,7 +4,7 @@ import time
 import os
 
 # Set the time delay to 5 minutes (300 seconds)
-TIME_DELAY = 5
+TIME_DELAY = 300
 HOSTS_FILE = "/private/etc/hosts"
 BLOCKED_IP = "127.0.0.1"
 

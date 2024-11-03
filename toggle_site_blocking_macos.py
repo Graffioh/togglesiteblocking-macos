@@ -4,7 +4,7 @@ import time
 import os
 
 # Set the time delay to 5 minutes (300 seconds)
-TIME_DELAY = 300
+TIME_DELAY = 5
 HOSTS_FILE = "/private/etc/hosts"
 BLOCKED_IP = "127.0.0.1"
 
@@ -13,6 +13,7 @@ SITE_ALIASES = """
 twitter=twitter.com, www.twitter.com, x.com, www.x.com
 facebook=facebook.com, www.facebook.com
 x=twitter.com, www.twitter.com, x.com, www.x.com
+flow=twitter.com, www.twitter.com, x.com, www.x.com, www.reddit.com, reddit.com
 """
 
 def read_site_aliases():
